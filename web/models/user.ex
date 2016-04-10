@@ -7,6 +7,8 @@ defmodule Pxblog.User do
     field :email, :string
     field :password_digest, :string
 
+    has_many :posts, Pxblog.Post
+
     timestamps
 
     # Virtual Fields
