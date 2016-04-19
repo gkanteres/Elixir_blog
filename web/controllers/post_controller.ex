@@ -3,9 +3,10 @@ defmodule Pxblog.PostController do
 
   alias Pxblog.Post
 
+  plug :scrub_params, "post" when action in [:create, :update]
   plug :assign_user
   plug :authorize_user when action in [:new, :create, :update, :edit, :delete]
-  plug :scrub_params, "post" when action in [:create, :update]
+  plug :set_authorization_flag when action in [:show]
 
   def index(conn, _params) do
     posts = Repo.all(assoc(conn.assigns[:user], :posts))
@@ -102,6 +103,15 @@ defmodule Pxblog.PostController do
       |> redirect(to: page_path(conn, :index))
       |> halt()
     end
+  end
+
+  defp set_authorization_flag(conn, _opts) do
+    assign(conn, :author_or_admin, is_authorized_user?(conn))
+  end
+
+  defp is_authorized_user?(conn) do
+    user = get_session(conn, :current_user)
+    (user && (Integer.to_string(user.id) == conn.params["user_id"] || Pxblog.RoleChecker.is_admin?(user)))
   end
 
 end

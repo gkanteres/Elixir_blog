@@ -10,12 +10,27 @@ defmodule Pxblog.SessionController do
   end
 
   def create(conn, %{"user" => %{"username" => username, "password" => password}}) when not is_nil(username) and not is_nil(password) do
-    user = Repo.get_by(User, username: username)
-    sign_in(user, password, conn)
+    Repo.get_by(User, username: username)
+    |> sign_in(password, conn)
   end
 
   def create(conn, _) do
     failed_login(conn)
+  end
+
+  defp failed_login(conn) do
+    conn
+    |> put_session(:current_user, nil)
+    |> put_flash(:error, "Invalid username/password combination!")
+    |> redirect(to: page_path(conn, :index))
+    |> halt()
+  end
+
+  def delete(conn, _params) do
+    conn
+    |> delete_session(:current_user)
+    |> put_flash(:info, "Signed out successfully!")
+    |> redirect(to: page_path(conn, :index))
   end
 
   defp sign_in(user, _password, conn) when is_nil(user) do
@@ -33,18 +48,4 @@ defmodule Pxblog.SessionController do
     end
   end
 
-  defp failed_login(conn) do
-    conn
-    |> put_session(:current_user, nil)
-    |> put_flash(:error, "Invalid username/password combination!")
-    |> redirect(to: page_path(conn, :index))
-    |> halt()
-  end
-
-  def delete(conn, _params) do
-    conn
-    |> delete_session(:current_user)
-    |> put_flash(:info, "Signed out successfully!")
-    |> redirect(to: page_path(conn, :index))
-  end
 end
