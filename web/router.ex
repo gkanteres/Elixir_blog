@@ -18,25 +18,12 @@ defmodule Pxblog.Router do
 
     get "/", PageController, :index
     resources "/users", UserController do
-      resources "/posts", PostController, only: [] do
-       resources "/comments", CommentController, only: [:create, :delete, :update]
-      end
-
-      ## Examples
-
-        iex> usage
-        result
-
-      """
+      resources "/posts", PostController
     end
     resources "/sessions", SessionController, only: [:new, :create, :delete]
-    # resources "/posts", PostController, only: [] do
-    #   resources "/comments", CommentController, only: [:create, :delete, :update]
-    # end
+    resources "/posts", PostController, only: [] do
+      resources "/comments", CommentController, only: [:create, :delete, :update]
+    end
   end
 
-  # Other scopes may use custom stacks.
-  # scope "/api", Pxblog do
-  #   pipe_through :api
-  # end
 end

@@ -97,15 +97,14 @@ end
     |> halt
   end
 
-  defp authorize_user(conn, _) do
-    user = get_session(conn, :current_user)
-    if user && (Integer.to_string(user.id) == conn.params["id"] || Pxblog.RoleChecker.is_admin?(user)) do
+  defp authorize_user(conn, _opts) do
+    if is_authorized_user?(conn) do
       conn
     else
       conn
-      |> put_flash(:error, "You are not authorized to modify that user!")
+      |> put_flash(:error, "You are not authorized to modify that post!")
       |> redirect(to: page_path(conn, :index))
-      |> halt()
+      |> halt
     end
   end
 
@@ -115,7 +114,8 @@ end
 
   defp is_authorized_user?(conn) do
     user = get_session(conn, :current_user)
-    (user && (Integer.to_string(user.id) == conn.params["user_id"] || Pxblog.RoleChecker.is_admin?(user)))
+    (user && (Integer.to_string(user.id) == conn.params["user_id"]
+  || Pxblog.RoleChecker.is_admin?(user)))
   end
 
 end
